@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
+import {
+    BriefcaseBusiness,
+    CalendarClock,
+    FileSpreadsheet,
+    LayoutGrid,
+    TimerReset,
+    Users,
+} from 'lucide-vue-next';
+import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
-import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import {
@@ -15,28 +22,67 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as attendanceIndex } from '@/routes/hris/attendance';
+import { index as employeesIndex } from '@/routes/hris/employees';
+import { index as leaveIndex } from '@/routes/hris/leave';
+import { index as payrollIndex } from '@/routes/hris/payroll';
+import { index as reportsIndex } from '@/routes/hris/reports';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
+const page = usePage();
+const capabilities = computed(() => page.props.auth.capabilities);
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
-    },
-];
+const mainNavItems = computed<NavItem[]>(() => {
+    const items: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+    ];
+
+    if (capabilities.value.employees) {
+        items.push({
+            title: 'Employees',
+            href: employeesIndex(),
+            icon: Users,
+        });
+    }
+
+    if (capabilities.value.attendance) {
+        items.push({
+            title: 'Attendance',
+            href: attendanceIndex(),
+            icon: TimerReset,
+        });
+    }
+
+    if (capabilities.value.leave) {
+        items.push({
+            title: 'Leave',
+            href: leaveIndex(),
+            icon: CalendarClock,
+        });
+    }
+
+    if (capabilities.value.payroll) {
+        items.push({
+            title: 'Payroll',
+            href: payrollIndex(),
+            icon: FileSpreadsheet,
+        });
+    }
+
+    if (capabilities.value.reports) {
+        items.push({
+            title: 'Reports',
+            href: reportsIndex(),
+            icon: BriefcaseBusiness,
+        });
+    }
+
+    return items;
+});
 </script>
 
 <template>
@@ -58,7 +104,6 @@ const footerNavItems: NavItem[] = [
         </SidebarContent>
 
         <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
             <NavUser />
         </SidebarFooter>
     </Sidebar>

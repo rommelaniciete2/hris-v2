@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { dashboard, login, register } from '@/routes';
+import { dashboard, login } from '@/routes';
 
 withDefaults(
     defineProps<{
@@ -38,13 +38,6 @@ withDefaults(
                     >
                         Log in
                     </Link>
-                    <Link
-                        v-if="canRegister"
-                        :href="register()"
-                        class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-                    >
-                        Register
-                    </Link>
                 </template>
             </nav>
         </header>
@@ -59,8 +52,8 @@ withDefaults(
                 >
                     <h1 class="mb-1 font-medium">Let's get started</h1>
                     <p class="mb-2 text-[#706f6c] dark:text-[#A1A09A]">
-                        Laravel has an incredibly rich ecosystem. <br />We
-                        suggest starting with the following.
+                        HRIS access is invite-only in this environment.
+                        <br />Sign in with an HR-provisioned account to continue.
                     </p>
                     <ul class="mb-4 flex flex-col lg:mb-6">
                         <li

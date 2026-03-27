@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,11 +36,31 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        /** @var User|null $user */
+        $user = $request->user();
+
+        if ($user !== null) {
+            $user->loadMissing('role', 'employee');
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+                'role' => $user?->role?->only(['id', 'name', 'slug']),
+                'permissions' => $user?->role?->permissions ?? [],
+                'employee_id' => $user?->employee?->id,
+                'capabilities' => [
+                    'employees' => $user?->hasAnyHrisPermission(['employees.view_any', 'employees.manage']) ?? false,
+                    'attendance' => ($user?->hasAnyHrisPermission(['attendance.view_any', 'attendance.manage', 'attendance.punch']) ?? false) || $user?->hasEmployeeProfile() === true,
+                    'leave' => ($user?->hasAnyHrisPermission(['leaves.view_any', 'leaves.manage']) ?? false) || $user?->hasEmployeeProfile() === true,
+                    'payroll' => ($user?->hasAnyHrisPermission(['payroll.view_any', 'payroll.manage']) ?? false) || $user?->hasEmployeeProfile() === true,
+                    'reports' => $user?->hasHrisPermission('reports.view') ?? false,
+                    'recruitment' => $user?->hasHrisPermission('recruitment.manage') ?? false,
+                    'performance' => ($user?->hasHrisPermission('performance.manage') ?? false) || $user?->hasEmployeeProfile() === true,
+                    'documents' => ($user?->hasHrisPermission('documents.manage') ?? false) || $user?->hasEmployeeProfile() === true,
+                ],
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

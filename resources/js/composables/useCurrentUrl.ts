@@ -3,20 +3,25 @@ import { usePage } from '@inertiajs/vue3';
 import type { ComputedRef, DeepReadonly } from 'vue';
 import { computed, readonly } from 'vue';
 import { toUrl } from '@/lib/utils';
+import type { RouteDefinition } from '@/wayfinder';
+
+type LinkTarget =
+    | NonNullable<InertiaLinkProps['href']>
+    | RouteDefinition<'get'>;
 
 export type UseCurrentUrlReturn = {
     currentUrl: DeepReadonly<ComputedRef<string>>;
     isCurrentUrl: (
-        urlToCheck: NonNullable<InertiaLinkProps['href']>,
+        urlToCheck: LinkTarget,
         currentUrl?: string,
         startsWith?: boolean,
     ) => boolean;
     isCurrentOrParentUrl: (
-        urlToCheck: NonNullable<InertiaLinkProps['href']>,
+        urlToCheck: LinkTarget,
         currentUrl?: string,
     ) => boolean;
     whenCurrentUrl: <T, F = null>(
-        urlToCheck: NonNullable<InertiaLinkProps['href']>,
+        urlToCheck: LinkTarget,
         ifTrue: T,
         ifFalse?: F,
     ) => T | F;
@@ -35,7 +40,7 @@ const currentUrlReactive = computed(
 
 export function useCurrentUrl(): UseCurrentUrlReturn {
     function isCurrentUrl(
-        urlToCheck: NonNullable<InertiaLinkProps['href']>,
+        urlToCheck: LinkTarget,
         currentUrl?: string,
         startsWith: boolean = false,
     ) {
@@ -59,14 +64,14 @@ export function useCurrentUrl(): UseCurrentUrlReturn {
     }
 
     function isCurrentOrParentUrl(
-        urlToCheck: NonNullable<InertiaLinkProps['href']>,
+        urlToCheck: LinkTarget,
         currentUrl?: string,
     ) {
         return isCurrentUrl(urlToCheck, currentUrl, true);
     }
 
     function whenCurrentUrl(
-        urlToCheck: NonNullable<InertiaLinkProps['href']>,
+        urlToCheck: LinkTarget,
         ifTrue: any,
         ifFalse: any = null,
     ) {
